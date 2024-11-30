@@ -35,7 +35,6 @@ public class VoiceAssistantApplication {
 	public CommandLineRunner chatBot(ChatClient.Builder chatClientBuilder,
 			@Value("${audio.chatbot.prompt:classpath:/marvin.paranoid.android.txt}") Resource systemPrompt) {
 		return args -> {
-
 			// 1. Audio recording and playback utility, using plain Java Sound API
 			Audio audio = new Audio();
 
@@ -61,10 +60,7 @@ public class VoiceAssistantApplication {
 						.messages(new UserMessage("Please answer the questions in the audio input",
 								new Media(MediaType.parseMediaType("audio/wav"),
 										new ByteArrayResource(audio.getLastRecording()))))
-						.call()
-						.chatResponse()
-						.getResult()
-						.getOutput();
+						.call().chatResponse().getResult().getOutput();
 
 					// Print the response and play the audio response
 					System.out.println("\nASSISTANT: " + response.getContent());

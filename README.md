@@ -1,10 +1,10 @@
 # Voice Assistant ChatBot
 
 This is a Spring Boot application that serves as a voice-enabled chatbot assistant. 
-It leverages Spring AI to process voice inputs, interact with a OpenAI chat model, and respond with audio outputs. 
+It leverages Spring AI to process voice inputs, interact with an OpenAI chat model, and respond with audio outputs. 
 The application uses Java's Sound API for audio recording and playback.
 
-By default it is using a system prompt that imparsonates Marvin.
+By default, it uses a system prompt that impersonates Marvin.
 
 <img src="doc/marvin-transparent.svg" width="200" align="center"/>
 
@@ -16,7 +16,7 @@ By default it is using a system prompt that imparsonates Marvin.
 - **Voice Input and Output**: Communicates using recorded voice input and generates audio responses.
 - **Chat Memory**: Maintains context using in-memory chat memory.
 - **System Prompt**: Configurable system prompt to define the chatbot's behavior.
-- **Spring AI Integration**: Utilizes Spring AI's ChatClient to interact with a chat model.
+- **Spring AI Integration**: Utilizes Spring AI's `ChatClient` to interact with a chat model.
 
 ## Requirements
 
@@ -75,7 +75,6 @@ spring.ai.openai.chat.options.output-audio.format=WAV
 2. Press `Enter` to stop recording.
 3. Listen to the assistant’s response, which will be played back.
 
-
 ## Code Overview
 
 ### `VoiceAssistantApplication`
@@ -94,4 +93,3 @@ A helper class for:
 - Playing back audio responses.
 
 The `Audio` class uses a `TargetDataLine` for capturing audio input and a `Clip` for playback. It supports the WAV audio format and stores the recordings in a temporary file (`AudioRecordBuffer.wav`). Note that this implementation is not thread-safe and is intended for demonstration purposes.
-
