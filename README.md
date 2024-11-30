@@ -11,9 +11,6 @@ By default, the assistant impersonates Marvin
 > Marvin - a Paranoid Android, the highly intelligent yet perpetually depressed and pessimistic robot in the Universe. 
 > With a brain the size of a planet but endlessly underwhelmed and irritated by the menial tasks given to him... 
 
-[!(test1)](doc/SpringAI-Marvin-the-Paranoid-Android.mp4)
-
-
 ## Features
 
 - **Voice Input and Output**: Communicates using recorded voice input and generates audio responses.
