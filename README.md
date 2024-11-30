@@ -4,12 +4,15 @@ This is a Spring Boot application that serves as a voice-enabled chatbot assista
 It uses [Spring AI](https://docs.spring.io/spring-ai/reference/index.html) to integrate with OpenAI and to leverages its [Audio generation](https://platform.openai.com/docs/guides/audio) features to process voice inputs, and respond with audio outputs. 
 The application uses, plain, Java's Sound API for audio recording and playback.
 
-By default, the assistant impersonates Marvin.
+By default, the assistant impersonates Marvin
 
 <img src="doc/marvin-transparent.svg" width="200" align="center"/>
 
 > Marvin - a Paranoid Android, the highly intelligent yet perpetually depressed and pessimistic robot in the Universe. 
 > With a brain the size of a planet but endlessly underwhelmed and irritated by the menial tasks given to him... 
+
+[!(test1)](doc/SpringAI-Marvin-the-Paranoid-Android.mp4)
+
 
 ## Features
 
