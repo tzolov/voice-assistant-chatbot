@@ -1,10 +1,10 @@
 # Voice Assistant ChatBot
 
 This is a Spring Boot application that serves as a voice-enabled chatbot assistant. 
-It leverages Spring AI to process voice inputs, interact with an OpenAI chat model, and respond with audio outputs. 
-The application uses Java's Sound API for audio recording and playback.
+It uses [Spring AI](https://docs.spring.io/spring-ai/reference/index.html) to integrate with OpenAI and to leverages its [Audio generation](https://platform.openai.com/docs/guides/audio) features to process voice inputs, and respond with audio outputs. 
+The application uses, plain, Java's Sound API for audio recording and playback.
 
-By default, it uses a system prompt that impersonates Marvin.
+By default, the assistant impersonates Marvin.
 
 <img src="doc/marvin-transparent.svg" width="200" align="center"/>
 
@@ -16,15 +16,13 @@ By default, it uses a system prompt that impersonates Marvin.
 - **Voice Input and Output**: Communicates using recorded voice input and generates audio responses.
 - **Chat Memory**: Maintains context using in-memory chat memory.
 - **System Prompt**: Configurable system prompt to define the chatbot's behavior.
-- **Spring AI Integration**: Utilizes Spring AI's `ChatClient` to interact with a chat model.
+- **Spring AI Integration**: Utilizes Spring AI's [ChatClient](https://docs.spring.io/spring-ai/reference/api/chatclient.html) to interact with a chat model.
 
 ## Requirements
 
 - **Java**: Java 17 or higher.
 - **Spring Boot**: Version 3.2.x or higher.
-- **Dependencies**:
-  - `spring-ai-openai-spring-boot-starter`
-  - Other transitive dependencies managed by Spring Boot.
+- **Dependencies**: `spring-ai-openai-spring-boot-starter`
 
 ## Getting Started
 
@@ -36,8 +34,6 @@ cd assistant-application
 ```
 
 ### Configuration
-
-#### Application Properties
 
 ```properties
 spring.main.web-application-type=none
@@ -66,7 +62,7 @@ spring.ai.openai.chat.options.output-audio.format=WAV
 ### Run the Application
 
 ```bash
-./mvnw spring-boot:run
+java -jar ./target/voice-assistant-chatbot-0.0.1-SNAPSHOT.jar
 ```
 
 ### Interacting with the Assistant
@@ -75,21 +71,18 @@ spring.ai.openai.chat.options.output-audio.format=WAV
 2. Press `Enter` to stop recording.
 3. Listen to the assistant’s response, which will be played back.
 
+Press `Crl+C` to exit. 
+
 ## Code Overview
 
-### `VoiceAssistantApplication`
+The application consists of two classes the `VoiceAssistantApplication.java` and the utility `Audio`.
 
-The main class initializes the chatbot with:
+The [VoiceAssistantApplication.java](https://github.com/tzolov/voice-assistant-chatbot/blob/main/src/main/java/spring/ai/demo/ai/marvin/VoiceAssistantApplication.java) is the  main class initializes the chatbot with:
 
-1. **Audio Recording and Playback**: Manages voice input and output using the `Audio` utility.
-2. **ChatClient**: Configures the chatbot using the system prompt and an in-memory chat memory advisor.
-3. **Command Line Runner**: Implements a loop to continuously record, process, and respond to user input.
+1. **ChatClient**: Configures the chatbot using the system prompt and an in-memory chat memory advisor.
+2. **Command Line Runner**: Implements a loop to continuously record, process, and respond to user input.
+3. **Audio Recording and Playback**: Manages voice input and output using the `Audio` utility for recording audio input from the user and playing back audio responses.
 
-### `Audio` Utility
-
-A helper class for:
-
-- Recording audio input from the user using the Java Sound API.
-- Playing back audio responses.
-
-The `Audio` class uses a `TargetDataLine` for capturing audio input and a `Clip` for playback. It supports the WAV audio format and stores the recordings in a temporary file (`AudioRecordBuffer.wav`). Note that this implementation is not thread-safe and is intended for demonstration purposes.
+The [Audio](https://github.com/tzolov/voice-assistant-chatbot/blob/main/src/main/java/spring/ai/demo/ai/marvin/Audio.java) is simple utility that uses the pain `Java Sound API` for capturing and playback audio. 
+It supports the WAV audio format and stores the recordings in a temporary file `AudioRecordBuffer.wav`. 
+Note that it is not thread-safe and is intended for demonstration purposes.

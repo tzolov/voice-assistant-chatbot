@@ -49,11 +49,11 @@ public class VoiceAssistantApplication {
 			try (Scanner scanner = new Scanner(System.in)) {
 				while (true) {
 					audio.startRecording(); // Start recording the user's voice input
-					System.out.print("\nYOU: recording your question ... press Enter to stop! ");
+					System.out.print("\nRecording your question ... press Enter to stop! ");
 					scanner.nextLine();
 					audio.stopRecording(); // Stop recording the user's voice input
 
-					System.out.print("     ... PROCESSING ...\n");
+					System.out.print("PROCESSING ...\n");
 
 					// Send the user's voice input to the chat client and get the response
 					var response = chatClient.prompt()
