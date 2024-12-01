@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Scanner;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -32,8 +31,9 @@ import javax.sound.sampled.TargetDataLine;
 import org.springframework.util.StreamUtils;
 
 /**
- * Simple, audio recording and playback utility using plain Java Sound API. It captures
- * computer's Mic for input and Speakers as output.
+ * Simple, audio recording and playback utility using plain Java Sound API.
+ *
+ * It captures computer's Mic for input and Speakers as output.
  *
  * Warning: This implementation is not thread-safe and should not be used in a production.
  *
@@ -52,8 +52,12 @@ public class Audio {
 	private final File wavFile;
 
 	public Audio() {
-		this.format = new AudioFormat(44100.0f, 16, 1, true, true);
-		this.wavFile = new File("AudioRecordBuffer.wav");
+		this(new AudioFormat(44100.0f, 16, 1, true, true), "AudioRecordBuffer.wav");
+	}
+
+	public Audio(AudioFormat format, String wavFileName) {
+		this.format = format;
+		this.wavFile = new File(wavFileName);
 	}
 
 	public void startRecording() {
@@ -92,11 +96,7 @@ public class Audio {
 		}
 	}
 
-	public void playLastRecording() {
-		playRecording(getLastRecording());
-	}
-
-	public void playRecording(byte[] waveData) { // java utils to play wav audio
+	public static void play(byte[] waveData) { // java utils to play wav audio
 		try (Clip clip = AudioSystem.getClip();
 				AudioInputStream audio = AudioSystem
 					.getAudioInputStream(new BufferedInputStream(new ByteArrayInputStream(waveData)));) {
@@ -108,25 +108,10 @@ public class Audio {
 			while (clip.isRunning()) {
 				Thread.sleep(3000);
 			} // wait to finish
+			clip.stop();
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
-		}
-	}
-
-	public static void main(String[] args) {
-		Audio audio = new Audio();
-
-		try (Scanner scanner = new Scanner(System.in)) {
-			while (true) {
-				audio.startRecording();
-				System.out.print("\nRECORDING... Press Enter to stop!");
-				scanner.nextLine();
-				System.out.println("... PROCESSING ...");
-				audio.stopRecording();
-				System.out.println("Playing back the recording...");
-				audio.playLastRecording();
-			}
 		}
 	}
 

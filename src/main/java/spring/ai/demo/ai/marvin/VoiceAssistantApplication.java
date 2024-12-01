@@ -1,10 +1,12 @@
 package spring.ai.demo.ai.marvin;
 
+import java.nio.charset.Charset;
 import java.util.Scanner;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
+import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.model.Media;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,39 +35,44 @@ public class VoiceAssistantApplication {
 
 	@Bean
 	public CommandLineRunner chatBot(ChatClient.Builder chatClientBuilder,
-			@Value("${audio.chatbot.prompt:classpath:/marvin.paranoid.android.txt}") Resource systemPrompt) {
+			@Value("${chatbot.prompt:classpath:/marvin.paranoid.android.txt}") Resource systemPrompt) {
 		return args -> {
-			// 1. Audio recording and playback utility, using plain Java Sound API
-			Audio audio = new Audio();
 
-			// 2. Create the ChatClient with with system prompt and conversation memory.
-			// The application.properties defines the model and the output audio format.
-			var chatClient = chatClientBuilder
-				.defaultSystem(systemPrompt.getContentAsString(java.nio.charset.Charset.defaultCharset()))
+			// Create the ChatClient with with system prompt and conversation memory.
+			// The model and the audio formats are configured in the application.properties file.
+			var chatClient = chatClientBuilder.defaultSystem(systemPrompt.getContentAsString(Charset.defaultCharset()))
 				.defaultAdvisors(new MessageChatMemoryAdvisor(new InMemoryChatMemory()))
 				.build();
 
-			// 3. Start the chat loop
 			try (Scanner scanner = new Scanner(System.in)) {
-				while (true) {
-					audio.startRecording(); // Start recording the user's voice input
-					System.out.print("\nRecording your question ... press Enter to stop! ");
+
+				// Audio utility to record and playback the audio.
+				Audio audio = new Audio();
+
+				// Start the chat loop
+				while (true) {					
+					//Record user's voice input
+					audio.startRecording(); 
+					System.out.print("\nRecording your question ... press <Enter> to stop! ");
 					scanner.nextLine();
-					audio.stopRecording(); // Stop recording the user's voice input
+					audio.stopRecording();
 
 					System.out.print("PROCESSING ...\n");
 
-					// Send the user's voice input to the chat client and get the response
-					var response = chatClient.prompt()
+					// Send user's input to the AI model and get the response
+					AssistantMessage response = chatClient.prompt()
 						.messages(new UserMessage("Please answer the questions in the audio input",
 								new Media(MediaType.parseMediaType("audio/wav"),
 										new ByteArrayResource(audio.getLastRecording()))))
-						.call().chatResponse().getResult().getOutput();
+						.call()
+						.chatResponse()
+						.getResult()
+						.getOutput();
 
-					// Print the response and play the audio response
+					// Print the text (e.g. transcription) response
 					System.out.println("\nASSISTANT: " + response.getContent());
 					// Play the audio response
-					audio.playRecording(response.getMedia().get(0).getDataAsByteArray());
+					Audio.play(response.getMedia().get(0).getDataAsByteArray());
 				}
 			}
 		};

@@ -1,15 +1,18 @@
 # Voice Assistant ChatBot
 
 This is a Spring Boot application that serves as a voice-enabled chatbot assistant. 
-It uses [Spring AI](https://docs.spring.io/spring-ai/reference/index.html) to integrate with OpenAI and to leverages its [Audio generation](https://platform.openai.com/docs/guides/audio) features to process voice inputs, and respond with audio outputs. 
+It uses [Spring AI](https://docs.spring.io/spring-ai/reference/index.html) to integrate with OpenAI and to leverages its [audio generation](https://platform.openai.com/docs/guides/audio) features to process voice inputs, and respond with audio outputs. 
 The application uses, plain, Java's Sound API for audio recording and playback.
 
-By default, the assistant impersonates Marvin
+By default, the assistant impersonates Marvin, using the [marvin.paranoid.android.txt](https://github.com/tzolov/voice-assistant-chatbot/blob/main/src/main/resources/marvin.paranoid.android.txt) system prompt.
 
 <img src="doc/marvin-transparent.svg" width="200" align="center"/>
 
 > Marvin - a Paranoid Android, the highly intelligent yet perpetually depressed and pessimistic robot in the Universe. 
 > With a brain the size of a planet but endlessly underwhelmed and irritated by the menial tasks given to him... 
+
+Use the `chatbot.prompt=<file-name.txt>` property to configure a different personality.
+For example the `chatbot.prompt=classpath:/psychoanalyst.txt`, will set the [psychoanalyst.txt](https://github.com/tzolov/voice-assistant-chatbot/blob/main/src/main/resources/psychoanalyst.txt) prompt to impersonate a psychoanalyst.
 
 ## Features
 
@@ -22,7 +25,9 @@ By default, the assistant impersonates Marvin
 
 - **Java**: Java 17 or higher.
 - **Spring Boot**: Version 3.2.x or higher.
-- **Dependencies**: `spring-ai-openai-spring-boot-starter`
+- **Dependencies**: `spring-ai-openai-spring-boot-starter`, version `1.0.0-SNAPSHOT` or the forthcoming M5.
+- **OpenAI API Key**: Follow the Spring AI OpenAI integration [instruction](https://docs.spring.io/spring-ai/reference/api/chat/openai-chat.html) to configure your access to OpenAI.
+- **OpenAI Model**: Currently only the `gpt-4o-audio-preview` model support input/output audio modality.
 
 ## Getting Started
 
@@ -39,7 +44,7 @@ cd assistant-application
 spring.main.web-application-type=none
 
 # System prompt message
-audio.chatbot.prompt=classpath:/marvin.paranoid.android.txt
+chatbot.prompt=classpath:/marvin.paranoid.android.txt
 
 # OpenAI API key
 spring.ai.openai.api-key=${OPENAI_API_KEY}
@@ -81,8 +86,5 @@ The [VoiceAssistantApplication.java](https://github.com/tzolov/voice-assistant-c
 
 1. **ChatClient**: Configures the chatbot using the system prompt and an in-memory chat memory advisor.
 2. **Command Line Runner**: Implements a loop to continuously record, process, and respond to user input.
-3. **Audio Recording and Playback**: Manages voice input and output using the `Audio` utility for recording audio input from the user and playing back audio responses.
-
-The [Audio](https://github.com/tzolov/voice-assistant-chatbot/blob/main/src/main/java/spring/ai/demo/ai/marvin/Audio.java) is simple utility that uses the pain `Java Sound API` for capturing and playback audio. 
-It supports the WAV audio format and stores the recordings in a temporary file `AudioRecordBuffer.wav`. 
-Note that it is not thread-safe and is intended for demonstration purposes.
+3. **Audio Recording and Playback**: Manages voice input and output using the [Audio](https://github.com/tzolov/voice-assistant-chatbot/blob/main/src/main/java/spring/ai/demo/ai/marvin/Audio.java) utility for recording audio input from the user and playing back audio responses.
+It is a single class implementation, leveraging the pain `Java Sound API` for capturing and playback audio. 
