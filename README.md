@@ -70,6 +70,22 @@ spring.ai.openai.chat.options.output-audio.format=WAV
 java -jar ./target/voice-assistant-chatbot-0.0.1-SNAPSHOT.jar
 ```
 
+```
+ ▗▄▄▖▗▄▄▖ ▗▄▄▖ ▗▄▄▄▖▗▖  ▗▖ ▗▄▄▖     ▗▄▖ ▗▄▄▄▖                                    
+▐▌   ▐▌ ▐▌▐▌ ▐▌  █  ▐▛▚▖▐▌▐▌       ▐▌ ▐▌  █                                      
+ ▝▀▚▖▐▛▀▘ ▐▛▀▚▖  █  ▐▌ ▝▜▌▐▌▝▜▌    ▐▛▀▜▌  █                                      
+▗▄▄▞▘▐▌   ▐▌ ▐▌▗▄█▄▖▐▌  ▐▌▝▚▄▞▘    ▐▌ ▐▌▗▄█▄▖                                    
+▗▄▄▖  ▗▄▖ ▗▄▄▖  ▗▄▖ ▗▖  ▗▖ ▗▄▖ ▗▄▄▄▖▗▄▄▄      ▗▄▖ ▗▖  ▗▖▗▄▄▄ ▗▄▄▖  ▗▄▖ ▗▄▄▄▖▗▄▄▄ 
+▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▛▚▖▐▌▐▌ ▐▌  █  ▐▌  █    ▐▌ ▐▌▐▛▚▖▐▌▐▌  █▐▌ ▐▌▐▌ ▐▌  █  ▐▌  █
+▐▛▀▘ ▐▛▀▜▌▐▛▀▚▖▐▛▀▜▌▐▌ ▝▜▌▐▌ ▐▌  █  ▐▌  █    ▐▛▀▜▌▐▌ ▝▜▌▐▌  █▐▛▀▚▖▐▌ ▐▌  █  ▐▌  █
+▐▌   ▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌  ▐▌▝▚▄▞▘▗▄█▄▖▐▙▄▄▀    ▐▌ ▐▌▐▌  ▐▌▐▙▄▄▀▐▌ ▐▌▝▚▄▞▘▗▄█▄▖▐▙▄▄▀
+voice-assistant-chatbot:0.0.1-SNAPSHOT/Spring AI:1.0.0-SNAPSHOT/Spring Boot:3.4.0
+
+2024-12-01T11:00:11.274+01:00  INFO 31297 --- [voice-assistant-chatbot] [           main] s.a.d.a.m.VoiceAssistantApplication      : Started VoiceAssistantApplication in 0.827 seconds (process running for 1.054)
+
+Recording your question ... press <Enter> to stop!
+```
+
 ### Interacting with the Assistant
 
 1. Speak your query when prompted.
