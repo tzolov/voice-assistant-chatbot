@@ -40,7 +40,8 @@ public class VoiceAssistantApplication {
 
 			// Create the ChatClient with with system prompt and conversation memory.
 			// The model and the audio formats are configured in the application.properties file.
-			var chatClient = chatClientBuilder.defaultSystem(systemPrompt.getContentAsString(Charset.defaultCharset()))
+			var chatClient = chatClientBuilder
+				.defaultSystem(systemPrompt)
 				.defaultAdvisors(new MessageChatMemoryAdvisor(new InMemoryChatMemory()))
 				.build();
 
