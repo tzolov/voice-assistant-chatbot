@@ -1,6 +1,5 @@
 package spring.ai.demo.ai.marvin;
 
-import java.nio.charset.Charset;
 import java.util.Scanner;
 
 import org.springframework.ai.chat.client.ChatClient;
@@ -71,7 +70,7 @@ public class VoiceAssistantApplication {
 						.getOutput();
 
 					// Print the text (e.g. transcription) response
-					System.out.println("\nASSISTANT: " + response.getContent());
+					System.out.println("\nASSISTANT: " + response.getText());
 					// Play the audio response
 					Audio.play(response.getMedia().get(0).getDataAsByteArray());
 				}

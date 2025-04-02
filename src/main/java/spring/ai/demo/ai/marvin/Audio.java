@@ -35,7 +35,8 @@ import org.springframework.util.StreamUtils;
  *
  * It captures computer's Mic for input and Speakers as output.
  *
- * Warning: This implementation is not thread-safe and should not be used in a production.
+ * Warning: This implementation is not thread-safe and should not be used in a
+ * production.
  *
  * @author Christian Tzolov
  */
@@ -70,8 +71,7 @@ public class Audio {
 				this.microphone.open(this.format);
 				this.microphone.start();
 				AudioSystem.write(new AudioInputStream(this.microphone), AudioFileFormat.Type.WAVE, this.wavFile);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new RuntimeException("Recording failed", e);
 			}
 		}).start();
@@ -90,28 +90,61 @@ public class Audio {
 			return (this.wavFile.exists())
 					? StreamUtils.copyToByteArray(new BufferedInputStream(new FileInputStream(this.wavFile)))
 					: new byte[0];
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException("Failed to read recording", e);
 		}
 	}
 
 	public static void play(byte[] waveData) { // java utils to play wav audio
-		try (Clip clip = AudioSystem.getClip();
-				AudioInputStream audio = AudioSystem
-					.getAudioInputStream(new BufferedInputStream(new ByteArrayInputStream(waveData)));) {
-			clip.open(audio);
-			clip.start();
-			while (!clip.isRunning()) {
-				Thread.sleep(1000);
-			} // wait to start
-			while (clip.isRunning()) {
-				Thread.sleep(3000);
-			} // wait to finish
-			clip.stop();
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		try {
+			// Get the audio input stream
+			AudioInputStream audioInputStream = AudioSystem
+					.getAudioInputStream(new BufferedInputStream(new ByteArrayInputStream(waveData)));
+
+			// Get the audio format
+			AudioFormat format = audioInputStream.getFormat();
+
+			// Create a normalized format that works well with GraalVM
+			AudioFormat normalizedFormat = new AudioFormat(
+					AudioFormat.Encoding.PCM_SIGNED, // Use signed PCM encoding
+					format.getSampleRate(),
+					16, // Use 16-bit samples
+					format.getChannels(),
+					format.getChannels() * 2, // Frame size
+					format.getSampleRate(),
+					false); // Use little-endian (more widely compatible)
+
+			// Convert to the normalized format
+			AudioInputStream normalizedStream = AudioSystem.getAudioInputStream(normalizedFormat, audioInputStream);
+
+			// Create a temporary buffer to ensure all data is valid
+			byte[] audioBytes = normalizedStream.readAllBytes();
+
+			// Create a new stream from the validated data
+			AudioInputStream validatedStream = new AudioInputStream(
+					new ByteArrayInputStream(audioBytes),
+					normalizedFormat,
+					audioBytes.length / normalizedFormat.getFrameSize());
+
+			// Play the audio
+			try (Clip clip = AudioSystem.getClip()) {
+				clip.open(validatedStream);
+				clip.start();
+
+				// Wait for playback to complete
+				while (!clip.isRunning()) {
+					Thread.sleep(100);
+				}
+				while (clip.isRunning()) {
+					Thread.sleep(100);
+				}
+
+				clip.stop();
+			}
+		} catch (Exception e) {
+			System.err.println("Audio playback error: " + e.getMessage());
+			e.printStackTrace();
+			// Continue without throwing to prevent application crash
 		}
 	}
 
