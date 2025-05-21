@@ -44,7 +44,8 @@ public class VoiceAssistantApplication {
 			// file.
 			var chatClient = chatClientBuilder
 					.defaultSystem(systemPrompt)
-					.defaultAdvisors(new MessageChatMemoryAdvisor(MessageWindowChatMemory.builder().build()))
+					.defaultAdvisors(
+							MessageChatMemoryAdvisor.builder(MessageWindowChatMemory.builder().build()).build())
 					.build();
 
 			try (Scanner scanner = new Scanner(System.in)) {

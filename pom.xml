@@ -16,7 +16,7 @@
 	<description>Spring Boot application that serves as a voice-enabled chatbot assistant. It leverages Spring AI to process voice inputs, interact with a OpenAI chat model, and respond with audio outputs.</description>
 	<properties>
 		<java.version>21</java.version>
-		<spring-ai.version>1.0.0-SNAPSHOT</spring-ai.version>
+		<spring-ai.version>1.1.0-SNAPSHOT</spring-ai.version>
 	</properties>
 	<dependencies>
 		<dependency>
