@@ -24,10 +24,11 @@ For example the `chatbot.prompt=classpath:/psychoanalyst.txt`, will set the [psy
 ## Requirements
 
 - **Java**: Java 17 or higher.
-- **Spring Boot**: Version 3.2.x or higher.
-- **Dependencies**: `spring-ai-openai-spring-boot-starter`, version `1.0.0-SNAPSHOT` or the forthcoming M5.
+- **Spring Boot**: Version 4.0.x or higher.
+- **Dependencies**: `spring-ai-starter-model-openai`, version `2.0.0` or higher.
 - **OpenAI API Key**: Follow the Spring AI OpenAI integration [instruction](https://docs.spring.io/spring-ai/reference/api/chat/openai-chat.html) to configure your access to OpenAI.
-- **OpenAI Model**: Currently only the `gpt-4o-audio-preview` model support input/output audio modality.
+- **OpenAI Model**: An audio-capable model is required for the input/output audio modality (e.g. `gpt-audio-mini-2025-12-15`, `gpt-audio`, or the older `gpt-4o-audio-preview`).
+- **Microphone access**: The OS must grant microphone access to the process that launches the app (see [Microphone Permission](#microphone-permission-macos) below).
 
 ## Getting Started
 
@@ -49,8 +50,8 @@ chatbot.prompt=classpath:/marvin.paranoid.android.txt
 # OpenAI API key
 spring.ai.openai.api-key=${OPENAI_API_KEY}
 
-# Set the OpenAI model
-spring.ai.openai.chat.options.model=gpt-4o-audio-preview
+# Set the OpenAI model (must be audio-capable)
+spring.ai.openai.chat.options.model=gpt-audio-mini-2025-12-15
 
 # Output audio configuration
 spring.ai.openai.chat.options.output-modalities=text,audio
@@ -67,8 +68,10 @@ spring.ai.openai.chat.options.output-audio.format=WAV
 ### Run the Application
 
 ```bash
-java -jar ./target/voice-assistant-chatbot-0.0.1-SNAPSHOT.jar
+java -jar ./target/voice-assistant-chatbot-0.2.1-SNAPSHOT.jar
 ```
+
+> **macOS note:** launch from a host that has microphone permission (see [Microphone Permission](#microphone-permission-macos)). When running `java -jar ...` directly from a terminal, that terminal app must be granted microphone access.
 
 ```
  ▗▄▄▖▗▄▄▖ ▗▄▄▖ ▗▄▄▄▖▗▖  ▗▖ ▗▄▄▖     ▗▄▖ ▗▄▄▄▖                                    
@@ -79,7 +82,7 @@ java -jar ./target/voice-assistant-chatbot-0.0.1-SNAPSHOT.jar
 ▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▛▚▖▐▌▐▌ ▐▌  █  ▐▌  █    ▐▌ ▐▌▐▛▚▖▐▌▐▌  █▐▌ ▐▌▐▌ ▐▌  █  ▐▌  █
 ▐▛▀▘ ▐▛▀▜▌▐▛▀▚▖▐▛▀▜▌▐▌ ▝▜▌▐▌ ▐▌  █  ▐▌  █    ▐▛▀▜▌▐▌ ▝▜▌▐▌  █▐▛▀▚▖▐▌ ▐▌  █  ▐▌  █
 ▐▌   ▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌  ▐▌▝▚▄▞▘▗▄█▄▖▐▙▄▄▀    ▐▌ ▐▌▐▌  ▐▌▐▙▄▄▀▐▌ ▐▌▝▚▄▞▘▗▄█▄▖▐▙▄▄▀
-voice-assistant-chatbot:0.0.1-SNAPSHOT/Spring AI:1.0.0-SNAPSHOT/Spring Boot:3.4.0
+voice-assistant-chatbot:0.2.1-SNAPSHOT/Spring AI:2.0.0/Spring Boot:4.0.7
 
 2024-12-01T11:00:11.274+01:00  INFO 31297 --- [voice-assistant-chatbot] [           main] s.a.d.a.m.VoiceAssistantApplication      : Started VoiceAssistantApplication in 0.827 seconds (process running for 1.054)
 
@@ -92,7 +95,24 @@ Recording your question ... press <Enter> to stop!
 2. Press `Enter` to stop recording.
 3. Listen to the assistant’s response, which will be played back.
 
-Press `Crl+C` to exit. 
+Press `Ctrl+C` to exit.
+
+## Microphone Permission (macOS)
+
+On macOS the microphone permission is granted to the **application that launches the JVM**, not to Java itself:
+
+- Running from a terminal (`Terminal.app`, `iTerm2`) → that terminal app needs the permission.
+- Running from an IDE (VS Code, IntelliJ) Run button or integrated terminal → the IDE needs the permission.
+
+If access is **not** granted, macOS does not throw an error — it silently feeds an all-zero (silent) audio stream. The recording succeeds and is sent to the model, but the assistant responds as if it heard nothing.
+
+To fix:
+
+1. Open **System Settings → Privacy & Security → Microphone** and enable the host app.
+2. **Fully quit and relaunch** that app — an already-running process (and the JVM it spawned) keeps its original permission decision; toggling the setting does not reach it. Closing only the window is not enough.
+3. Confirm the correct input device is selected and not muted under **System Settings → Sound → Input**.
+
+To verify the captured audio actually contains sound, inspect the recording buffer (`AudioRecordBuffer.wav`) — a peak amplitude of `0` across all samples means the stream is silent (still blocked).
 
 ## Code Overview
 

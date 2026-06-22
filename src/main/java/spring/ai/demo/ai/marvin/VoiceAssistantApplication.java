@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -70,6 +71,7 @@ public class VoiceAssistantApplication {
 									.media(new Media(MediaType.parseMediaType("audio/wav"),
 											new ByteArrayResource(audio.getLastRecording())))
 									.build())
+							.advisors(a -> a.param(ChatMemory.CONVERSATION_ID, "123"))
 							.call()
 							.chatResponse()
 							.getResult()

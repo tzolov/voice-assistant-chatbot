@@ -48,12 +48,21 @@ public class Audio {
 	private volatile TargetDataLine microphone;
 
 	/**
+	 * The thread that streams the microphone capture into the WAV file. Kept so that
+	 * {@link #stopRecording()} can wait for the file to be fully flushed and closed
+	 * before the recording is read back.
+	 */
+	private volatile Thread recordingThread;
+
+	/**
 	 * The file to store the recorded audio. Plays the role of a buffer.
 	 */
 	private final File wavFile;
 
 	public Audio() {
-		this(new AudioFormat(44100.0f, 16, 1, true, true), "AudioRecordBuffer.wav");
+		// signed, little-endian PCM. WAV/PCM is little-endian by convention, which is
+		// what audio decoders (e.g. OpenAI) expect; big-endian samples decode as noise.
+		this(new AudioFormat(44100.0f, 16, 1, true, false), "AudioRecordBuffer.wav");
 	}
 
 	public Audio(AudioFormat format, String wavFileName) {
@@ -63,18 +72,22 @@ public class Audio {
 
 	public void startRecording() {
 
-		new Thread(() -> {
+		// Ensure clean slate for new recording
+		stopRecording();
+
+		this.recordingThread = new Thread(() -> {
 			try {
-				// Ensure clean slate for new recording
-				stopRecording();
 				this.microphone = AudioSystem.getTargetDataLine(this.format);
 				this.microphone.open(this.format);
 				this.microphone.start();
+				// Blocks until the line is closed by stopRecording(), then flushes and
+				// closes the WAV file (updating its header) before returning.
 				AudioSystem.write(new AudioInputStream(this.microphone), AudioFileFormat.Type.WAVE, this.wavFile);
 			} catch (Exception e) {
 				throw new RuntimeException("Recording failed", e);
 			}
-		}).start();
+		});
+		this.recordingThread.start();
 	}
 
 	public void stopRecording() {
@@ -82,6 +95,17 @@ public class Audio {
 			this.microphone.stop();
 			this.microphone.close();
 			this.microphone = null;
+		}
+		// Wait for the recording thread to finish writing and closing the WAV file so
+		// that a subsequent getLastRecording() reads a complete, valid file.
+		Thread thread = this.recordingThread;
+		if (thread != null) {
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			this.recordingThread = null;
 		}
 	}
 
