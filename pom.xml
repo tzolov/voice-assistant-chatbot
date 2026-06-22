@@ -17,12 +17,30 @@
 	<properties>
 		<!-- <java.version>21</java.version> -->
 		<java.version>17</java.version>
-		<spring-ai.version>2.0.0</spring-ai.version>
+		<spring-ai.version>2.0.1-SNAPSHOT</spring-ai.version>
+		<spring-ai-agent-utils.version>0.10.0</spring-ai-agent-utils.version>
+		<spring-ai-session.version>0.6.0-SNAPSHOT</spring-ai-session.version>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-starter-model-openai</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springaicommunity</groupId>
+			<artifactId>spring-ai-agent-utils</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springaicommunity</groupId>
+			<artifactId>spring-ai-session</artifactId>
+		</dependency>
+
+		<!-- Netty DNS resolver for macOS -->
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-resolver-dns-native-macos</artifactId>
+			<classifier>osx-aarch_64</classifier>
 		</dependency>
 
 		<dependency>
@@ -37,6 +55,20 @@
 				<groupId>org.springframework.ai</groupId>
 				<artifactId>spring-ai-bom</artifactId>
 				<version>${spring-ai.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springaicommunity</groupId>
+				<artifactId>spring-ai-agent-utils-bom</artifactId>
+				<version>${spring-ai-agent-utils.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springaicommunity</groupId>
+				<artifactId>spring-ai-session-bom</artifactId>
+				<version>${spring-ai-session.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

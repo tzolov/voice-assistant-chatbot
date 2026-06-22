@@ -4,6 +4,9 @@ This is a Spring Boot application that serves as a voice-enabled chatbot assista
 It uses [Spring AI](https://docs.spring.io/spring-ai/reference/index.html) to integrate with OpenAI and to leverages its [audio generation](https://platform.openai.com/docs/guides/audio) features to process voice inputs, and respond with audio outputs. 
 The application uses, plain, Java's Sound API for audio recording and playback.
 
+The assistant can also reach out to the web: it is equipped with web search and web fetch tools, 
+so it can look up and read up-to-date information when answering your spoken questions.
+
 By default, the assistant impersonates Marvin, using the [marvin.paranoid.android.txt](https://github.com/tzolov/voice-assistant-chatbot/blob/main/src/main/resources/marvin.paranoid.android.txt) system prompt.
 
 <img src="doc/marvin-transparent.svg" width="200" align="center"/>
@@ -17,7 +20,9 @@ For example the `chatbot.prompt=classpath:/psychoanalyst.txt`, will set the [psy
 ## Features
 
 - **Voice Input and Output**: Communicates using recorded voice input and generates audio responses.
-- **Chat Memory**: Maintains context using in-memory chat memory.
+- **Web Search and Fetch Tools**: Equipped with a Brave-powered web search tool (`BraveWebSearchTool`) and a content fetch tool (`SmartWebFetchTool`) from [spring-ai-agent-utils](https://github.com/spring-ai-community/spring-ai-agent-utils), so the assistant can retrieve and read live information from the web.
+- **Session Memory with Compaction**: Maintains conversation context using the session-based `SessionMemoryAdvisor` from [spring-ai-session](https://github.com/spring-ai-community/spring-ai-session), with automatic history compaction (a sliding-window strategy triggered by turn count).
+- **Request/Response Logging**: A custom `MyLoggingAdvisor` prints the user input, available tools, tool calls, conversation memory, and assistant responses to the console.
 - **System Prompt**: Configurable system prompt to define the chatbot's behavior.
 - **Spring AI Integration**: Utilizes Spring AI's [ChatClient](https://docs.spring.io/spring-ai/reference/api/chatclient.html) to interact with a chat model.
 
@@ -25,8 +30,9 @@ For example the `chatbot.prompt=classpath:/psychoanalyst.txt`, will set the [psy
 
 - **Java**: Java 17 or higher.
 - **Spring Boot**: Version 4.0.x or higher.
-- **Dependencies**: `spring-ai-starter-model-openai`, version `2.0.0` or higher.
-- **OpenAI API Key**: Follow the Spring AI OpenAI integration [instruction](https://docs.spring.io/spring-ai/reference/api/chat/openai-chat.html) to configure your access to OpenAI.
+- **Dependencies**: `spring-ai-starter-model-openai` (version `2.0.0` or higher), `spring-ai-agent-utils` (web search/fetch tools), and `spring-ai-session` (session memory). On Apple-silicon macOS the `netty-resolver-dns-native-macos` (`osx-aarch_64`) dependency is also included for native DNS resolution.
+- **OpenAI API Key**: Follow the Spring AI OpenAI integration [instruction](https://docs.spring.io/spring-ai/reference/api/chat/openai-chat.html) to configure your access to OpenAI. Provide it via the `OPENAI_API_KEY` environment variable.
+- **Brave Search API Key**: The web search tool uses the [Brave Search API](https://brave.com/search/api/). Provide your key via the `BRAVE_API_KEY` environment variable.
 - **OpenAI Model**: An audio-capable model is required for the input/output audio modality (e.g. `gpt-audio-mini-2025-12-15`, `gpt-audio`, or the older `gpt-4o-audio-preview`).
 - **Microphone access**: The OS must grant microphone access to the process that launches the app (see [Microphone Permission](#microphone-permission-macos) below).
 
@@ -51,13 +57,16 @@ chatbot.prompt=classpath:/marvin.paranoid.android.txt
 spring.ai.openai.api-key=${OPENAI_API_KEY}
 
 # Set the OpenAI model (must be audio-capable)
-spring.ai.openai.chat.options.model=gpt-audio-mini-2025-12-15
+spring.ai.openai.chat.model=gpt-audio-mini-2025-12-15
+spring.ai.openai.chat.max-tokens=4096
 
 # Output audio configuration
-spring.ai.openai.chat.options.output-modalities=text,audio
-spring.ai.openai.chat.options.output-audio.voice=ONYX
-spring.ai.openai.chat.options.output-audio.format=WAV
+spring.ai.openai.chat.output-modalities=text,audio
+spring.ai.openai.chat.output-audio.voice=ONYX
+spring.ai.openai.chat.output-audio.format=WAV
 ```
+
+> The web search tool additionally requires a `BRAVE_API_KEY` environment variable to be set.
 
 ### Build the Application
 
@@ -120,7 +129,11 @@ The application consists of two classes the `VoiceAssistantApplication.java` and
 
 The [VoiceAssistantApplication.java](https://github.com/tzolov/voice-assistant-chatbot/blob/main/src/main/java/spring/ai/demo/ai/marvin/VoiceAssistantApplication.java) is the  main class initializes the chatbot with:
 
-1. **ChatClient**: Configures the chatbot using the system prompt and an in-memory chat memory advisor.
+1. **ChatClient**: Configures the chatbot with the system prompt, the session-memory advisor (`SessionMemoryAdvisor`, backed by an in-memory session repository with sliding-window compaction), the logging advisor (`MyLoggingAdvisor`), and the web search/fetch tools (`BraveWebSearchTool` and `SmartWebFetchTool`).
 2. **Command Line Runner**: Implements a loop to continuously record, process, and respond to user input.
 3. **Audio Recording and Playback**: Manages voice input and output using the [Audio](https://github.com/tzolov/voice-assistant-chatbot/blob/main/src/main/java/spring/ai/demo/ai/marvin/Audio.java) utility for recording audio input from the user and playing back audio responses.
 It is a single class implementation, leveraging the pain `Java Sound API` for capturing and playback audio. 
+
+The [MyLoggingAdvisor.java](https://github.com/tzolov/voice-assistant-chatbot/blob/main/src/main/java/spring/ai/demo/ai/marvin/MyLoggingAdvisor.java) is a custom `BaseAdvisor` that prints the user input, available tools, tool calls, tool responses, conversation memory, and assistant responses to the console for easy inspection of what the model receives and returns.
+
+The `SmartWebFetchTool` is wired with its own cloned `ChatClient` (without the session-memory advisor) so that its internal model calls do not pollute the main conversation history.
